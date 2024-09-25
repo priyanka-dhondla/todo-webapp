@@ -42,7 +42,7 @@ const Users = () => {
   const handleRemoveUser = async (id) => {
     const token = localStorage.getItem("accessToken");
 
-    // Show confirmation alert
+   
     const result = await Swal.fire({
       title: "Are you sure?",
       text: "You won't be able to revert this!",
@@ -65,7 +65,7 @@ const Users = () => {
         );
         if (response.data.message) {
           Swal.fire("Deleted!", response.data.message, "success");
-          fetchUsers(); // Refresh the user list
+          fetchUsers();
         }
       } catch (error) {
         console.error("Error deleting user:", error);

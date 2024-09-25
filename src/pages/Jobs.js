@@ -16,10 +16,10 @@ const Jobs = () => {
   const [bookmarked, setBookmarked] = useState(new Set());
   const [pagesToShow, setPagesToShow] = useState([]);
 
-  // Default total pages (you can adjust this based on your needs)
-  const totalPages = 10; // For example, assume 10 pages total
+ 
+  const totalPages = 10; 
 
-  // Fetch jobs data for the current page
+  
   const fetchJobs = useCallback(async (pageNumber) => {
     setLoading(true);
     try {
@@ -35,23 +35,23 @@ const Jobs = () => {
     }
   }, []);
 
-  // Fetch jobs when the component mounts or page changes
+  
   useEffect(() => {
     fetchJobs(page);
   }, [fetchJobs, page]);
 
-  // Fetch bookmarks from localStorage
+  
   useEffect(() => {
     const storedBookmarks = JSON.parse(localStorage.getItem("bookmarks")) || [];
     setBookmarked(new Set(storedBookmarks.map((job) => job.id)));
   }, []);
 
-  // Calculate pages to show (5 pages at a time)
+  
   useEffect(() => {
     const calculatePagesToShow = () => {
       const pages = [];
       const startPage = Math.max(1, page - 2);
-      const endPage = Math.min(totalPages, startPage + 4); // Show up to 5 pages
+      const endPage = Math.min(totalPages, startPage + 4); 
 
       for (let i = startPage; i <= endPage; i++) {
         pages.push(i);
@@ -178,7 +178,7 @@ const Jobs = () => {
           </div>
         )}
 
-        {/* Pagination */}
+        
         <nav
           aria-label="Page navigation example"
           className="mt-6 flex justify-center"
@@ -209,7 +209,7 @@ const Jobs = () => {
               </button>
             </li>
 
-            {/* Page Numbers */}
+           
             {pagesToShow.map((pageNumber) => (
               <li key={pageNumber}>
                 <button

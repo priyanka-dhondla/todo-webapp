@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom"; // Import useNavigate for navigation
-import Swal from "sweetalert2"; // Import SweetAlert2 for alerts
+import { useNavigate } from "react-router-dom"; 
+import Swal from "sweetalert2"; 
 
 const Tasks = () => {
   const [tasks, setTasks] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const navigate = useNavigate(); // Initialize the useNavigate hook
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchTasks = async () => {
@@ -37,7 +37,7 @@ const Tasks = () => {
     fetchTasks();
   }, []);
 
-  // Function to determine the color class based on task status
+ 
   const getStatusClass = (status) => {
     switch (status.toLowerCase()) {
       case "done":
@@ -55,7 +55,7 @@ const Tasks = () => {
     }
   };
 
-  // Function to handle the removal of a task
+  
   const handleRemoveTask = async (taskId) => {
     const accessToken = localStorage.getItem("accessToken");
     const confirmed = await Swal.fire({
@@ -91,7 +91,7 @@ const Tasks = () => {
           icon: "success",
           confirmButtonText: "OK",
         }).then(() => {
-          window.location.reload(); // Reload the page after deletion
+          window.location.reload(); 
         });
       } catch (error) {
         Swal.fire({

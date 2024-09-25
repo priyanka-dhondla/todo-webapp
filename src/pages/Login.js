@@ -3,10 +3,10 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 
 function Login() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [email, setEmail] = useState("priyad@gmail.com");
+  const [password, setPassword] = useState("Bujji");
   const [error, setError] = useState("");
-  const [showPassword, setShowPassword] = useState(false); // New state for password visibility
+  const [showPassword, setShowPassword] = useState(false); 
   const navigate = useNavigate();
 
   const handleLogin = async (e) => {
@@ -80,7 +80,7 @@ function Login() {
                 <input
                   id="password"
                   name="password"
-                  type={showPassword ? "text" : "password"} // Toggle password visibility
+                  type={showPassword ? "text" : "password"} 
                   required
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
@@ -89,7 +89,7 @@ function Login() {
                 />
                 <button
                   type="button"
-                  onClick={() => setShowPassword((prev) => !prev)} // Toggle the showPassword state
+                  onClick={() => setShowPassword((prev) => !prev)} 
                   className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-500"
                 >
                   {showPassword ? (

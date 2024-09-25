@@ -4,10 +4,10 @@ import axios from "axios";
 import Swal from "sweetalert2";
 
 const UserManage = () => {
-  const { userId } = useParams(); // Get userId from URL params
+  const { userId } = useParams(); 
   const navigate = useNavigate();
 
-  // Merged user details into a single state object
+  
   const [userData, setUserData] = useState({
     firstName: "",
     lastName: "",
@@ -18,7 +18,7 @@ const UserManage = () => {
 
   const [passwordVisible, setPasswordVisible] = useState(false);
 
-  // Fetch user details when editing an existing user (if userId !== 'NEW')
+  
   useEffect(() => {
     const fetchUserDetails = async () => {
       if (userId && userId !== "NEW") {
@@ -37,7 +37,7 @@ const UserManage = () => {
             firstName: userData.firstName,
             lastName: userData.lastName,
             email: userData.email,
-            password: "", // Leave password empty for edit
+            password: "", 
             phoneNumber: userData.phoneNumber,
           });
         } catch (error) {
@@ -49,7 +49,7 @@ const UserManage = () => {
     fetchUserDetails();
   }, [userId]);
 
-  // Handle input changes
+ 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setUserData((prevData) => ({
@@ -58,19 +58,19 @@ const UserManage = () => {
     }));
   };
 
-  // Save or update user based on whether userId exists or is 'NEW'
+  
   const handleSaveUser = async () => {
     try {
       const accessToken = localStorage.getItem("accessToken");
 
-      const isNewUser = userId === "NEW"; // Check if the userId is 'NEW'
+      const isNewUser = userId === "NEW";
       const endpoint = isNewUser
         ? `https://todo-backend-q5q9.onrender.com/create-user`
         : `https://todo-backend-q5q9.onrender.com/update-user/${userId}`;
 
       const method = isNewUser ? "post" : "put";
 
-      // Create or update user
+      
       const response = await axios({
         method,
         url: endpoint,
@@ -78,7 +78,7 @@ const UserManage = () => {
           firstName: userData.firstName,
           lastName: userData.lastName,
           email: userData.email,
-          password: userData.password || undefined, // Prevent sending empty password during update
+          password: userData.password || undefined, 
           phoneNumber: userData.phoneNumber,
         },
         headers: {
@@ -105,7 +105,7 @@ const UserManage = () => {
   };
 
   const handleCancel = () => {
-    navigate(-1); // Go back to the previous page
+    navigate(-1);
   };
 
   const togglePasswordVisibility = () => {

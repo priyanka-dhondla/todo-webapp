@@ -12,7 +12,7 @@ const TaskManage = () => {
 
   useEffect(() => {
     if (id !== "NEW") {
-      // Fetch the task details if editing an existing task
+      
       const fetchTaskDetails = async () => {
         setLoading(true);
         try {
@@ -42,7 +42,7 @@ const TaskManage = () => {
   const handleSaveTask = async () => {
     try {
       const accessToken = localStorage.getItem("accessToken");
-      const method = id === "NEW" ? "POST" : "PUT"; // POST for new task, PUT for editing
+      const method = id === "NEW" ? "POST" : "PUT"; 
       const endpoint = id === "NEW" ? "create-task" : `tasks/${id}`;
 
       const response = await fetch(
@@ -89,7 +89,7 @@ const TaskManage = () => {
   };
 
   const handleCancel = () => {
-    navigate("/tasks"); // Navigate back to the tasks list
+    navigate("/tasks"); 
   };
 
   if (loading) return <div>Loading...</div>;
