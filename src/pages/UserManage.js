@@ -21,7 +21,7 @@ const UserManage = () => {
         try {
           const accessToken = localStorage.getItem("accessToken");
           const response = await axios.get(
-            `http://localhost:3000/get-user-by-id/${userId}`,
+            `https://todo-backend-q5q9.onrender.com/get-user-by-id/${userId}`,
             {
               headers: {
                 Authorization: `Bearer ${accessToken}`,

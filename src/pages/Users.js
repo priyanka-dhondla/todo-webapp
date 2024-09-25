@@ -11,7 +11,7 @@ const Users = () => {
   const fetchUsers = async () => {
     try {
       const token = localStorage.getItem("accessToken");
-      const response = await axios.get("http://localhost:3000/users", {
+      const response = await axios.get("https://todo-backend-q5q9.onrender.com/users", {
         headers: {
           Authorization: `Bearer ${token}`,
         },

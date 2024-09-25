@@ -9,7 +9,7 @@ const Tasks = () => {
     const fetchTasks = async () => {
       try {
         const accessToken = localStorage.getItem("accessToken");
-        const response = await fetch("http://localhost:3000/tasks", {
+        const response = await fetch("https://todo-backend-q5q9.onrender.com/tasks", {
           headers: {
             Authorization: `Bearer ${accessToken}`,
           },
