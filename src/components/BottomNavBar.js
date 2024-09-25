@@ -1,4 +1,4 @@
-// src/components/BottomNavBar.js
+
 import React from "react";
 import { Link, useNavigate } from "react-router-dom";
 
@@ -6,20 +6,20 @@ const BottomNavBar = () => {
   const navigate = useNavigate();
   const accessToken = localStorage.getItem("accessToken");
 
-  // Function to handle logout
+  
   const handleLogout = () => {
-    localStorage.removeItem("accessToken"); // Clear the accessToken
-    navigate("/"); // Navigate to the home page
+    localStorage.removeItem("accessToken");
+    navigate("/"); 
   };
 
-  // Render the BottomNavBar only if accessToken exists
+  
   if (!accessToken) {
-    return null; // Do not render anything if accessToken is absent
+    return null;
   }
 
   return (
     <div className="fixed bottom-0 w-full bg-white">
-      <div className="hidden sm:block">
+      <div className="sm:block">
         <div className="border-t border-gray-200">
           <nav className="-mb-px flex justify-around" aria-label="Tabs">
             <Link
