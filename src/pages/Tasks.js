@@ -1,27 +1,32 @@
 import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom"; // Import useNavigate for navigation
+import Swal from "sweetalert2"; // Import SweetAlert2 for alerts
 
 const Tasks = () => {
   const [tasks, setTasks] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const navigate = useNavigate(); // Initialize the useNavigate hook
 
   useEffect(() => {
     const fetchTasks = async () => {
       try {
         const accessToken = localStorage.getItem("accessToken");
-        const response = await fetch("https://todo-backend-q5q9.onrender.com/tasks", {
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-          },
-        });
+        const response = await fetch(
+          "https://todo-backend-q5q9.onrender.com/tasks",
+          {
+            headers: {
+              Authorization: `Bearer ${accessToken}`,
+            },
+          }
+        );
 
         if (!response.ok) {
           throw new Error("Network response was not ok");
         }
 
         const data = await response.json();
-        console.log({ data });
-        setTasks(data.data); // Assuming the API returns an array of tasks
+        setTasks(data.data);
       } catch (err) {
         setError(err.message);
       } finally {
@@ -31,6 +36,73 @@ const Tasks = () => {
 
     fetchTasks();
   }, []);
+
+  // Function to determine the color class based on task status
+  const getStatusClass = (status) => {
+    switch (status.toLowerCase()) {
+      case "done":
+        return "bg-green-100 text-green-800";
+      case "pending":
+        return "bg-yellow-100 text-yellow-800";
+      case "in progress":
+        return "bg-orange-100 text-orange-800";
+      case "completed":
+        return "bg-purple-300 text-blue-800";
+      case "active":
+        return "bg-indigo-100 text-indigo-800";
+      default:
+        return "bg-gray-100 text-gray-800";
+    }
+  };
+
+  // Function to handle the removal of a task
+  const handleRemoveTask = async (taskId) => {
+    const accessToken = localStorage.getItem("accessToken");
+    const confirmed = await Swal.fire({
+      title: "Are you sure?",
+      text: "This action will permanently delete the task!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Yes, delete it!",
+      cancelButtonText: "No, cancel!",
+    });
+
+    if (confirmed.isConfirmed) {
+      try {
+        const response = await fetch(
+          `https://todo-backend-q5q9.onrender.com/tasks/${taskId}`,
+          {
+            method: "DELETE",
+            headers: {
+              Authorization: `Bearer ${accessToken}`,
+            },
+          }
+        );
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(data.message || "Failed to delete task");
+        }
+
+        Swal.fire({
+          title: "Deleted!",
+          text: data.message,
+          icon: "success",
+          confirmButtonText: "OK",
+        }).then(() => {
+          window.location.reload(); // Reload the page after deletion
+        });
+      } catch (error) {
+        Swal.fire({
+          title: "Error!",
+          text: error.message,
+          icon: "error",
+          confirmButtonText: "OK",
+        });
+      }
+    }
+  };
 
   if (loading) return <div>Loading...</div>;
   if (error) return <div>Error: {error}</div>;
@@ -51,6 +123,7 @@ const Tasks = () => {
           <button
             type="button"
             className="block rounded-md bg-indigo-600 px-3 py-2 text-center text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+            onClick={() => navigate("/tasks-manage/NEW")}
           >
             Add Task
           </button>
@@ -86,12 +159,17 @@ const Tasks = () => {
                   >
                     Created Time
                   </th>
-
                   <th
                     scope="col"
                     className="relative text-left py-3.5 pl-3 pr-4 sm:pr-0"
                   >
                     <span className="">Edit</span>
+                  </th>
+                  <th
+                    scope="col"
+                    className="relative text-left py-3.5 pl-3 pr-4 sm:pr-0"
+                  >
+                    <span className="">Remove</span>
                   </th>
                 </tr>
               </thead>
@@ -104,20 +182,35 @@ const Tasks = () => {
                     <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
                       {task.firstName} {task.lastName}
                     </td>
-                    <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-                      {task.status} {/* Display task status */}
+                    <td className="whitespace-nowrap px-3 py-4 text-sm">
+                      <span
+                        className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${getStatusClass(
+                          task.status
+                        )}`}
+                      >
+                        {task.status}
+                      </span>
                     </td>
                     <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
                       {new Date(task.createdAt).toLocaleString()}
                     </td>
-
                     <td className="relative whitespace-nowrap py-4 pl-3 pr-4 text-left text-sm font-medium sm:pr-0">
-                      <a
-                        href="#"
+                      <button
+                        onClick={() => navigate(`/tasks-manage/${task.id}`)}
                         className="text-indigo-600 hover:text-indigo-900"
                       >
-                        Edit<span className="sr-only">, {task.taskName}</span>
-                      </a>
+                        Edit
+                        <span className="sr-only">, {task.taskName}</span>
+                      </button>
+                    </td>
+                    <td className="relative whitespace-nowrap py-4 pl-3 pr-4 text-left text-sm font-medium sm:pr-0">
+                      <button
+                        onClick={() => handleRemoveTask(task.id)}
+                        className="text-red-600 hover:text-red-900"
+                      >
+                        Remove
+                        <span className="sr-only">, {task.taskName}</span>
+                      </button>
                     </td>
                   </tr>
                 ))}

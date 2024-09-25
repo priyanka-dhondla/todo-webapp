@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { Navigate } from "react-router-dom";
+import Swal from "sweetalert2";
 
 const Users = () => {
   const [users, setUsers] = useState([]);
@@ -11,11 +12,14 @@ const Users = () => {
   const fetchUsers = async () => {
     try {
       const token = localStorage.getItem("accessToken");
-      const response = await axios.get("https://todo-backend-q5q9.onrender.com/users", {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const response = await axios.get(
+        "https://todo-backend-q5q9.onrender.com/users",
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
       setUsers(response.data.data);
     } catch (err) {
       console.error("Error fetching users:", err);
@@ -33,6 +37,45 @@ const Users = () => {
 
   const handleEditUser = (id) => {
     setUserIdToEdit(id);
+  };
+
+  const handleRemoveUser = async (id) => {
+    const token = localStorage.getItem("accessToken");
+
+    // Show confirmation alert
+    const result = await Swal.fire({
+      title: "Are you sure?",
+      text: "You won't be able to revert this!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#d33",
+      cancelButtonColor: "#3085d6",
+      confirmButtonText: "Yes, delete it!",
+    });
+
+    if (result.isConfirmed) {
+      try {
+        const response = await axios.delete(
+          `https://todo-backend-q5q9.onrender.com/users/${id}`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+        if (response.data.message) {
+          Swal.fire("Deleted!", response.data.message, "success");
+          fetchUsers(); // Refresh the user list
+        }
+      } catch (error) {
+        console.error("Error deleting user:", error);
+        Swal.fire(
+          "Error!",
+          "Failed to delete user. Please try again.",
+          "error"
+        );
+      }
+    }
   };
 
   if (navigateToUserManage) {
@@ -112,9 +155,16 @@ const Users = () => {
                     <td className="relative whitespace-nowrap py-4 pl-3 pr-4 text-left text-sm font-medium sm:pr-0">
                       <a
                         onClick={() => handleEditUser(person.id)}
-                        className="text-indigo-600 hover:text-indigo-900"
+                        className="text-indigo-600 hover:text-indigo-900 mr-4"
                       >
                         Edit
+                        <span className="sr-only">, {person.firstName}</span>
+                      </a>
+                      <a
+                        onClick={() => handleRemoveUser(person.id)}
+                        className="text-red-600 hover:text-red-900 cursor-pointer"
+                      >
+                        Remove
                         <span className="sr-only">, {person.firstName}</span>
                       </a>
                     </td>

@@ -6,15 +6,19 @@ function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [showPassword, setShowPassword] = useState(false); // New state for password visibility
   const navigate = useNavigate();
 
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post("https://todo-backend-q5q9.onrender.com/login", {
-        email,
-        password,
-      });
+      const response = await axios.post(
+        "https://todo-backend-q5q9.onrender.com/login",
+        {
+          email,
+          password,
+        }
+      );
 
       if (response.data.token) {
         localStorage.setItem("accessToken", response.data.token);
@@ -60,7 +64,7 @@ function Login() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   autoComplete="email"
-                  className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                  className="block w-full pl-2 rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                 />
               </div>
             </div>
@@ -72,17 +76,54 @@ function Login() {
               >
                 Password
               </label>
-              <div className="mt-2">
+              <div className="mt-2 relative">
                 <input
                   id="password"
                   name="password"
-                  type="password"
+                  type={showPassword ? "text" : "password"} // Toggle password visibility
                   required
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   autoComplete="current-password"
-                  className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                  className="block w-full pl-2 rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                 />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword((prev) => !prev)} // Toggle the showPassword state
+                  className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-500"
+                >
+                  {showPassword ? (
+                    <svg
+                      className="h-5 w-5"
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M13.875 18.825C10.264 18.577 7.5 15.405 7.5 12c0-3.405 2.764-6.577 6.375-6.825m3.375 13.65a9.965 9.965 0 002.25-6.825c0-3.473-1.618-6.563-4.125-8.325m-3.375 0A9.965 9.965 0 0010.5 6.5C7.5 6.5 5 8.964 5 12c0 3.036 2.623 6.164 5.625 6.725"
+                      />
+                    </svg>
+                  ) : (
+                    <svg
+                      className="h-5 w-5"
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M13.875 18.825C10.264 18.577 7.5 15.405 7.5 12c0-3.405 2.764-6.577 6.375-6.825m3.375 13.65a9.965 9.965 0 002.25-6.825c0-3.473-1.618-6.563-4.125-8.325m-3.375 0A9.965 9.965 0 0010.5 6.5C7.5 6.5 5 8.964 5 12c0 3.036 2.623 6.164 5.625 6.725"
+                      />
+                    </svg>
+                  )}
+                </button>
               </div>
             </div>
 
