@@ -4,19 +4,24 @@ import axios from "axios";
 import Swal from "sweetalert2";
 
 const UserManage = () => {
-  const { userId } = useParams(); // Get userId from params
-  const [firstName, setFirstName] = useState("");
-  const [lastName, setLastName] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [phoneNumber, setPhoneNumber] = useState("");
-  const [passwordVisible, setPasswordVisible] = useState(false);
+  const { userId } = useParams(); // Get userId from URL params
   const navigate = useNavigate();
 
-  // Fetch user details for editing
+  // Merged user details into a single state object
+  const [userData, setUserData] = useState({
+    firstName: "",
+    lastName: "",
+    email: "",
+    password: "",
+    phoneNumber: "",
+  });
+
+  const [passwordVisible, setPasswordVisible] = useState(false);
+
+  // Fetch user details when editing an existing user (if userId !== 'NEW')
   useEffect(() => {
     const fetchUserDetails = async () => {
-      if (userId) {
+      if (userId && userId !== "NEW") {
         try {
           const accessToken = localStorage.getItem("accessToken");
           const response = await axios.get(
@@ -27,13 +32,14 @@ const UserManage = () => {
               },
             }
           );
-
           const userData = response.data.data;
-
-          setFirstName(userData.firstName);
-          setLastName(userData.lastName);
-          setEmail(userData.email);
-          setPhoneNumber(userData.phoneNumber);
+          setUserData({
+            firstName: userData.firstName,
+            lastName: userData.lastName,
+            email: userData.email,
+            password: "", // Leave password empty for edit
+            phoneNumber: userData.phoneNumber,
+          });
         } catch (error) {
           console.error("Error fetching user details:", error);
         }
@@ -43,42 +49,63 @@ const UserManage = () => {
     fetchUserDetails();
   }, [userId]);
 
+  // Handle input changes
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setUserData((prevData) => ({
+      ...prevData,
+      [name]: value,
+    }));
+  };
+
+  // Save or update user based on whether userId exists or is 'NEW'
   const handleSaveUser = async () => {
     try {
       const accessToken = localStorage.getItem("accessToken");
-      const endpoint = `https://todo-backend-q5q9.onrender.com/update-user/${userId}`;
 
-      const response = await axios.put(
-        endpoint,
-        {
-          firstName,
-          lastName,
-          email,
-          password,
-          phoneNumber,
+      const isNewUser = userId === "NEW"; // Check if the userId is 'NEW'
+      const endpoint = isNewUser
+        ? `https://todo-backend-q5q9.onrender.com/create-user`
+        : `https://todo-backend-q5q9.onrender.com/update-user/${userId}`;
+
+      const method = isNewUser ? "post" : "put";
+
+      // Create or update user
+      const response = await axios({
+        method,
+        url: endpoint,
+        data: {
+          firstName: userData.firstName,
+          lastName: userData.lastName,
+          email: userData.email,
+          password: userData.password || undefined, // Prevent sending empty password during update
+          phoneNumber: userData.phoneNumber,
         },
-        {
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-          },
-        }
-      );
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      });
 
-      if (response.data.message) {
-        Swal.fire({
-          icon: "success",
-          title: "User Updated Successfully",
-          text: response.data.message,
-        });
-        navigate("/users");
-      }
+      Swal.fire({
+        icon: "success",
+        title: isNewUser
+          ? "User Created Successfully"
+          : "User Updated Successfully",
+        text: response.data.message,
+      });
+      navigate("/users");
     } catch (error) {
       console.error("Error saving user:", error);
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: "There was an issue saving the user. Please try again.",
+      });
     }
   };
 
   const handleCancel = () => {
-    navigate(-1);
+    navigate(-1); // Go back to the previous page
   };
 
   const togglePasswordVisibility = () => {
@@ -89,7 +116,9 @@ const UserManage = () => {
     <div className="max-w-2xl mx-auto mt-20 px-4 sm:px-6 lg:px-8">
       <div className="bg-white shadow overflow-hidden sm:rounded-lg">
         <div className="px-4 py-5 sm:px-6">
-          <h1 className="text-2xl font-bold">Edit User</h1>
+          <h1 className="text-2xl font-bold">
+            {userId === "NEW" ? "Create User" : "Edit User"}
+          </h1>
         </div>
         <div className="border-t border-gray-200">
           <div className="grid grid-cols-6 gap-6 p-5">
@@ -99,8 +128,9 @@ const UserManage = () => {
               </label>
               <input
                 type="text"
-                value={firstName}
-                onChange={(e) => setFirstName(e.target.value)}
+                name="firstName"
+                value={userData.firstName}
+                onChange={handleInputChange}
                 className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
                 required
               />
@@ -111,8 +141,9 @@ const UserManage = () => {
               </label>
               <input
                 type="text"
-                value={lastName}
-                onChange={(e) => setLastName(e.target.value)}
+                name="lastName"
+                value={userData.lastName}
+                onChange={handleInputChange}
                 className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
                 required
               />
@@ -123,8 +154,9 @@ const UserManage = () => {
               </label>
               <input
                 type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                name="email"
+                value={userData.email}
+                onChange={handleInputChange}
                 className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
                 required
               />
@@ -135,20 +167,22 @@ const UserManage = () => {
               </label>
               <input
                 type="tel"
-                value={phoneNumber}
-                onChange={(e) => setPhoneNumber(e.target.value)}
+                name="phoneNumber"
+                value={userData.phoneNumber}
+                onChange={handleInputChange}
                 className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
                 required
               />
             </div>
             <div className="col-span-6 sm:col-span-3 relative">
               <label className="block text-sm font-medium text-gray-700">
-                Password
+                Password {userId !== "NEW" && "(Leave blank to keep current)"}
               </label>
               <input
                 type={passwordVisible ? "text" : "password"}
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                name="password"
+                value={userData.password}
+                onChange={handleInputChange}
                 className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 pr-10"
               />
               <button
@@ -177,30 +211,28 @@ const UserManage = () => {
                     className="bi bi-eye-slash mt-5"
                     viewBox="0 0 16 16"
                   >
-                    <path d="M13.359 11.238C15.06 9.72 16 8 16 8s-3-5.5-8-5.5a7 7 0 0 0-2.79.588l.77.771A6 6 0 0 1 8 3.5c2.12 0 3.879 1.168 5.168 2.457A13 13 0 0 1 14.828 8q-.086.13-.195.288c-.335.48-.83 1.12-1.465 1.755q-.247.248-.517.486z" />
-                    <path d="M11.297 9.176a3.5 3.5 0 0 0-4.474-4.474l.823.823a2.5 2.5 0 0 1 2.829 2.829zm-2.943 1.299.822.822a3.5 3.5 0 0 0 4.474-4.474l-.822-.822a2.5 2.5 0 0 1-2.828 2.828z" />
-                    <path d="M1.5 8s.938 1.5 2.5 3.5a11.54 11.54 0 0 0 3.905 2.705l-.77-.77A9.513 9.513 0 0 1 3.5 8.002c-.67-1.5-.75-3.56-.5-4.5-.333-.125-.998-.167-1.857.167a1.5 1.5 0 0 0-1.043 1.75A15.65 15.65 0 0 0 1.5 8z" />
+                    <path d="M13.359 11.238C15.06 9.72 16 8 16 8s-3-5.5-8-5.5a7 7 0 0 0-2.79.588l.77.771A6 6 0 0 1 8 3.5c2.12 0 4.014 1.91 5.299 3.44a12.996 12.996 0 0 1-2.357 2.358l.417.417z" />
+                    <path d="M11.242 9.238l1.178 1.179a4.5 4.5 0 0 0-5.656-5.656l.917.917a3.5 3.5 0 0 1 4.561 4.561z" />
+                    <path d="M1.643 4.3a.5.5 0 0 1 .707 0L14.7 17.348a.5.5 0 1 1-.707.707L9.1 9.9a12.935 12.935 0 0 1-3.375-1.034A13.008 13.008 0 0 1 .5 8c0-.75 2.693-4.5 7.5-4.5.418 0 .84.032 1.256.094L1.64 4.293a.5.5 0 0 1 0-.707z" />
                   </svg>
                 )}
               </button>
             </div>
           </div>
-          <div className="px-4 py-3 text-right sm:px-6">
-            <button
-              type="button"
-              onClick={handleCancel}
-              className="inline-flex justify-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-red-600 hover:bg-red-700"
-            >
-              Cancel
-            </button>
-            <button
-              type="button"
-              onClick={handleSaveUser}
-              className="ml-3 inline-flex justify-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700"
-            >
-              Save
-            </button>
-          </div>
+        </div>
+        <div className="px-4 py-4 sm:px-6 flex justify-end gap-3">
+          <button
+            onClick={handleSaveUser}
+            className="bg-indigo-500 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded"
+          >
+            {userId === "NEW" ? "Create" : "Update"}
+          </button>
+          <button
+            onClick={handleCancel}
+            className="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded"
+          >
+            Cancel
+          </button>
         </div>
       </div>
     </div>
